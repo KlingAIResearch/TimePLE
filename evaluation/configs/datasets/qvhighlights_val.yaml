@@ -1,0 +1,14 @@
+dataset:
+  name: qvhighlights_val
+  type: generic_temporal_grounding_json
+  path: data/benchmarks/qvhighlights/highlight_val_release.json
+  video_base_dir: data/benchmarks/qvhighlights/videos
+  prompt_profile_ref: ../prompts/qvhighlights_multi_segment.yaml
+  split: val
+  start_idx: 0
+  end_idx: null
+  sample_schema:
+    sample_id_field: sample_id
+    query_field: query
+    gt_field: gt_timestamps
+    video_field: video_path

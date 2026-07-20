@@ -1,0 +1,7 @@
+**/__pycache__/
+**/*.pyc
+**/outputs/
+**/media/
+**/clips/
+**/vtg_gemini_clips/
+**/infer_models_config.yaml

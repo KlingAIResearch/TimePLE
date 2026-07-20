@@ -1,0 +1,53 @@
+runtime:
+  input_jsonl: ""
+  review_output_jsonl: ""
+  review_export_jsonl: ""
+  review_apply_output_jsonl: ""
+  review_host: "127.0.0.1"
+  review_port: 8765
+
+prompt:
+  enable: true
+  system_prompt: ""
+  guidance_prompt: ""
+  query_template: |
+    You are an expert in video temporal grounding and benchmark annotation correction.
+    Task:
+    Based on video evidence, determine whether the given query accurately matches the video content, provide precise temporal localization, and
+    revise the query if necessary.
+    Output JSON schema:
+    {
+    "original_query": "...",
+    "refined_query": "...",
+    "refined_segment": {
+    "start_time": xx.xx,
+    "end_time": xx.xx
+    },
+    "reason": "..."
+    }
+    Rules:
+    1) All judgments must be based on video evidence; do not judge based only on the query text.
+    2) If the original query is semantically accurate and the temporal boundaries are reasonable, set refined_query equal to original_query.
+    3) If the original query is semantically inaccurate, too broad, too narrow, ambiguous, or missing important information, rewrite it as a more
+    accurate expression in refined_query.
+    4) If the query does not match the video content, set refined_segment.start_time and refined_segment.end_time to null.
+    5) refined_segment must use absolute timestamps on the video timeline, in seconds.
+    Original query: {query}
+
+gemini:
+  enabled: true
+  api:
+    project_id: ""
+    location: "global"
+    model_name: "gemini-3-pro-preview"
+    credentials_path: ""
+    max_workers: 1
+    max_retries: 3
+    retry_delay: 5.0
+    timeout: 300
+    media_resolution: "media_resolution_high"
+    video_fps: 2.0
+  generation:
+    max_new_tokens: 4096
+    temperature: 0.0
+    top_p: 1.0

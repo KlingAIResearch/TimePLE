@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Benchmark Annotation Correction</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <aside>
+    <h1>Annotation Correction</h1>
+    <div id="progress"></div>
+    <div id="samples"></div>
+  </aside>
+  <main>
+    <video id="video" controls></video>
+    <section>
+      <h2>Original annotation</h2>
+      <p id="query"></p>
+      <pre id="gt"></pre>
+      <button id="assist">Run Gemini correction</button>
+    </section>
+    <section>
+      <h2>Model assistance</h2>
+      <label>Refined query<textarea id="model-query" readonly></textarea></label>
+      <label>Refined segment<input id="model-segment" readonly></label>
+      <label>Reason<textarea id="reason" readonly></textarea></label>
+    </section>
+    <section>
+      <h2>Human decision</h2>
+      <label>Decision<select id="decision"><option value="keep">Keep</option><option value="modify">Modify</option><option value="delete">Delete</option></select></label>
+      <label>Final query<textarea id="final-query"></textarea></label>
+      <label>Final segment JSON<input id="final-segment" placeholder="[start, end]"></label>
+      <label>Notes<textarea id="notes"></textarea></label>
+      <button id="save">Save review</button>
+      <span id="status"></span>
+    </section>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>

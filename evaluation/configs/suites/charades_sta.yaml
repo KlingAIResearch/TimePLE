@@ -1,0 +1,32 @@
+version: 2
+
+suite:
+  name: charades_sta
+  description: TimePLE and matched Qwen3-VL evaluation on Charades-STA.
+  output_root: evaluation/outputs
+
+dataset_ref: ../datasets/charades_sta_test.yaml
+
+defaults:
+  execution:
+    python: python
+  metrics:
+    iou_thresholds: [0.3, 0.5, 0.7]
+    gt_duration_bucket_edges: [0, 10, 30]
+  output:
+    save_every: 20
+    log_level: INFO
+    save_predictions: true
+    save_failed_samples: true
+    resume_from: null
+  distributed:
+    enabled: false
+    auto_from_env: true
+    shard_output: true
+    auto_assign_local_gpus: true
+
+jobs:
+  - name: timeple_8b
+    model_ref: ../models/timeple_8b.yaml
+  - name: qwen3_vl_8b
+    model_ref: ../models/qwen3_vl_8b.yaml

@@ -1,0 +1,22 @@
+__base__: common.yaml
+
+profile:
+  name: charades_sta_single_segment
+  description: Prompt profile for single-segment temporal grounding benchmarks such as Charades-STA.
+
+prompt:
+  default:
+    enabled_sys_prompt: false
+    user_prompt: |-
+      Give you a textual query: '{query}'. When does the described content occur in the video?
+      Please return the timestamp:
+    enabled_format_prompt: true
+    format_prompt: Return only the final interval as [start_time, end_time] in seconds.
+
+  by_runner_family:
+    qwen3_vl_timeed:
+      enabled_sys_prompt: true
+      system_prompt: "You are a video temporal grounding assistant. Please provide the time localization information in the format <|TIMESPAN|>."
+      user_prompt: "Take the event statement \"{query}\" and determine the corresponding section on the video timeline. Represent the temporal localization information with <|TIMESPAN|>."
+      enabled_format_prompt: false
+      format_prompt: ""

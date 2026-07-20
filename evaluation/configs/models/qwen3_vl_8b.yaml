@@ -1,0 +1,43 @@
+model:
+  name: qwen3_vl_8b
+  display_name: Qwen3-VL-8B-Instruct
+  family: qwen3_vl
+  runner:
+    kind: eval_suite_vllm
+    family: qwen3_vl
+    script: evaluation/src/run_vllm_benchmark.py
+  official:
+    source_url: https://huggingface.co/Qwen/Qwen3-VL-8B-Instruct
+  resources:
+    gpu_count: 1
+    recommended_backend: vllm
+  eval:
+    config:
+      inference:
+        model_path: ./checkpoints/base-model
+        trust_remote_code: true
+        allowed_local_media_path: ./data
+        engine:
+          tensor_parallel_size: 1
+          dtype: bfloat16
+          gpu_memory_utilization: 0.7
+          max_model_len: 20480
+          max_num_seqs: 128
+          add_generation_prompt: true
+          limit_mm_per_prompt:
+            video: 1
+        generation:
+          max_tokens: 256
+          temperature: 0.0
+          top_p: 1.0
+          top_k: 0
+          repetition_penalty: 1.0
+        video:
+          content_order: media_first
+          message_kwargs:
+            fps: 2.0
+            max_frames: 200
+            frame_max_token: 64
+            frame_token_only: true
+        batching:
+          batch_size: 1

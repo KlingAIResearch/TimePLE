@@ -1,0 +1,14 @@
+dataset:
+  name: charades_sta_test
+  type: generic_temporal_grounding_json
+  path: data/benchmarks/charades_sta/charades_sta_test.json
+  video_base_dir: data/benchmarks/charades_sta/videos
+  prompt_profile_ref: ../prompts/charades_sta_single_segment.yaml
+  split: test
+  start_idx: 0
+  end_idx: null
+  sample_schema:
+    sample_id_field: sample_id
+    query_field: query
+    gt_field: gt_timestamps
+    video_field: video_path

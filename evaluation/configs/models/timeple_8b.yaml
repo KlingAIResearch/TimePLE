@@ -1,0 +1,49 @@
+model:
+  name: timeple_8b
+  display_name: TimePLE-8B
+  family: qwen3_vl_timeple
+  runner:
+    kind: eval_suite_vllm
+    family: qwen3_vl_timeple
+    script: evaluation/src/run_vllm_benchmark.py
+  official:
+    source_url: https://huggingface.co/REPLACE_WITH_ORG/TimePLE-8B
+    entrypoint: vllm::Qwen3VLForConditionalGenerationWithTimePLECodec
+  resources:
+    gpu_count: 1
+    recommended_backend: vllm
+  eval:
+    config:
+      inference:
+        model_path: ./checkpoints/sft-stage2
+        trust_remote_code: true
+        allowed_local_media_path: ./data
+        engine:
+          tensor_parallel_size: 1
+          dtype: bfloat16
+          mm_encoder_tp_mode: data
+          gpu_memory_utilization: 0.7
+          kv_cache_memory_bytes: 12884901888
+          max_model_len: 20480
+          max_num_seqs: 128
+          extra_llm_kwargs:
+            max_num_batched_tokens: 32768
+          add_generation_prompt: true
+          limit_mm_per_prompt:
+            video: 1
+        generation:
+          max_tokens: 256
+          temperature: 0.0
+          top_p: 1.0
+          top_k: 0
+          repetition_penalty: 1.0
+          skip_special_tokens: false
+        video:
+          content_order: media_first
+          message_kwargs:
+            fps: 2.0
+            max_frames: 200
+            frame_max_token: 64
+            frame_token_only: true
+        batching:
+          batch_size: 1

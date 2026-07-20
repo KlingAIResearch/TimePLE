@@ -1,0 +1,115 @@
+# Public SFT stage-1 config for Qwen3-VL and TimePLE.
+#
+# Launch: bash scripts/sft/train_stage1.sh
+
+meta:
+  experiment_name: timeple_sft_stage1
+  style: yaml_first
+  intent:
+    - finetune Qwen3-VL-8B with the independent TimePLE
+    - keep the codec frozen in stage1 while training the LLM, lm_head, and projector
+    - match the TimePLE stage1 SFT schedule and keep duration-adaptive boundary loss active
+
+launch:
+  command: bash scripts/sft/train_stage1.sh
+
+handoff:
+  geometry_pretrain:
+    codec_config_path: ./checkpoints/geometry/codec_config.json
+    pretrained_state_path: ./checkpoints/geometry/best.pt
+
+model:
+  model: ./checkpoints/base-model
+  attn_impl: flash_attention_2
+  torch_dtype: bfloat16
+
+  use_timeple_codec: true
+  use_timeple_interface_adapter: true
+  timeple_interface_adapter:
+    adapter_type: mlp_projector
+    projector:
+      input:
+        hidden_dim: 4096
+        activation: gelu
+        dropout: 0.0
+        anchor_alpha_init: 0.01
+        anchor_alpha_max: 0.02
+      output:
+        hidden_dim: 4096
+        activation: gelu
+        dropout: 0.0
+
+  timeple_codec_config: ./checkpoints/geometry/codec_config.json
+  timeple_codec_state_path: ./checkpoints/geometry/best.pt
+
+  freeze_vision: true
+  freeze_language: false
+  freeze_lm_head: false
+  freeze_timeple_codec: true
+  freeze_timeple_codec_encoder: true
+  freeze_timeple_codec_decoder: true
+
+data:
+  dataset_path: ./data/sft.jsonl
+  video_base_dir: /
+  video_load_backend: decord
+
+  fps: 4.0
+  fps_min_frames: 4
+  fps_max_frames: 400
+  max_ratio: 200
+  frame_factor: 2
+  spatial_merge_size: 2
+  video_max_token_num: 96
+  video_min_token_num: 32
+
+training:
+  output_dir: ./outputs/timeple_sft_stage1
+  logging_dir: ./outputs/timeple_sft_stage1/logs
+
+  train_type: full
+  resume_only_model: true
+  ignore_data_skip: true
+  remove_unused_columns: false
+
+  per_device_train_batch_size: 1
+  gradient_accumulation_steps: 20
+  dataloader_num_workers: 4
+  dataloader_prefetch_factor: 4
+
+  num_train_epochs: 1
+  learning_rate: 3.0e-5
+  seed: 42
+  data_seed: 42
+  logging_steps: 5
+
+  lm_loss_weight: 1.0
+  timeple_loss_weight: 0.2
+  timeple_decode_loss_weight: 1.0
+  timeple_dfl_loss_weight: 0.1
+  timeple_iou_loss_weight: 1.0
+  timeple_boundary_loss_weight: 0.5
+  timeple_codec_recon_loss_weight: 0.0
+  timeple_embedding_loss_weight: 0.0
+  timeple_embedding_cosine_loss_weight: 0.0
+  timeple_reencoding_loss_weight: 0.0
+  compute_timeple_loss: true
+
+  eval_strategy: steps
+  eval_steps: 20
+  save_steps: 20
+  save_total_limit: 2
+
+  bf16: true
+  split_dataset_ratio: 0.005
+  load_best_model_at_end: true
+  metric_for_best_model: timeple_mae_total
+  greater_is_better: false
+  preserve_checkpoint_snapshots: true
+  train_metric_for_best_model: span_iou
+  train_greater_is_better: false
+
+  gradient_checkpointing: true
+  vit_gradient_checkpointing: true
+
+  deepspeed: ./configs/deepspeed/zero2.json

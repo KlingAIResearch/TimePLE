@@ -1,0 +1,150 @@
+data:
+  train_files: ./data/rl_train.jsonl
+  val_files: ./data/rl_train.jsonl
+  prompt_key: prompt
+  answer_key: ground_truth
+  image_key: images
+  video_key: videos
+  image_dir: null
+
+  video_fps: 4.0
+  fps_max_frames: 400
+  video_max_token_num: 100
+
+  max_prompt_length: 27687
+  max_response_length: 256
+  rollout_batch_size: 64
+  val_batch_size: 16
+
+  override_chat_template: null
+  mini_rollout_batch_size: null
+  shuffle: true
+  seed: 42
+  filter_overlong_prompts: false
+
+algorithm:
+  adv_estimator: grpo
+  disable_kl: false
+  use_kl_loss: true
+  kl_penalty: low_var_kl
+  kl_coef: 1.0e-3
+  online_filtering: false
+  filter_key: overall
+  filter_low: 0.01
+  filter_high: 1.29
+
+worker:
+  actor:
+    global_batch_size: 64
+    micro_batch_size_per_device_for_update: 2
+    micro_batch_size_per_device_for_experience: 2
+    max_grad_norm: 1.0
+    padding_free: false
+    dynamic_batching: false
+    ulysses_size: 1
+
+    tr_spd_enabled: true
+    tr_spd_loss_weight: 1.0
+    tr_spd_tau_candidates: [0.25, 0.5, 0.75, 1.0, 1.5, 2.0, 3.0, 4.0, 5.0, 6.0, 8.0]
+    tr_spd_support_mode: none
+    tr_spd_accept_delta: 0.0
+    tr_spd_trust_region_kl_budget: 8.0
+    tr_spd_rejected_retention_weight: 0.1
+    tr_spd_use_improvement_weight: true
+    tr_spd_improvement_gamma: 0.5
+    tr_spd_improvement_scale: 0.05
+    tr_spd_improvement_max_extra_weight: 2.0
+    tr_spd_reward_type: iou
+    tr_spd_boundary_weight: 0.0
+    tr_spd_text_pg_loss_weight: 0.0
+
+    csdo_enabled: false
+
+    model:
+      model_path: ./checkpoints/sft-stage2
+      tokenizer_path: null
+      enable_gradient_checkpointing: true
+      trust_remote_code: true
+      freeze_vision_tower: true
+      freeze_timeple_codec_encoder: true
+      freeze_timeple_codec_decoder: true
+      lora:
+        rank: 0
+        alpha: 64
+        target_modules: all-linear
+        exclude_modules: .*visual.*
+    optim:
+      lr: 1.0e-6
+      weight_decay: 1.0e-2
+      strategy: adamw
+      lr_warmup_ratio: 0.0
+      lr_scheduler_type: constant
+    fsdp:
+      enable_full_shard: true
+      enable_cpu_offload: false
+      enable_rank0_init: true
+      torch_dtype: bf16
+    offload:
+      offload_params: false
+      offload_optimizer: false
+
+  rollout:
+    model_path: null
+    max_model_len: 27943
+    max_num_batched_tokens: 32768
+    n: 8
+    temperature: 0.8
+    top_p: 0.95
+    limit_images: 0
+    dtype: bf16
+    tensor_parallel_size: 1
+    gpu_memory_utilization: 0.6
+    enforce_eager: true
+    enable_chunked_prefill: false
+    disable_tqdm: false
+    val_override_config:
+      temperature: 0.3
+      top_p: 0.95
+      n: 1
+
+  ref:
+    fsdp:
+      enable_full_shard: true
+      enable_cpu_offload: true
+      enable_rank0_init: true
+    offload:
+      offload_params: false
+
+  reward:
+    reward_function: ./rewards/timeple_iou_dfl_format_reward.py:compute_score
+    reward_function_kwargs:
+      iou_weight: 0.80
+      dfl_weight: 0.20
+      format_weight: 0.30
+      dfl_scale: 2.5
+      iou_source: decoded
+      exact_count_required: false
+      invalid_localization_reward: 0.0
+    skip_special_tokens: false
+    num_cpus: 2
+
+trainer:
+  total_epochs: 1
+  max_steps: null
+  project_name: timeple
+  experiment_name: timeple_tr_spd
+  logger: ["console", "file", "tensorboard"]
+  nnodes: 4
+  n_gpus_per_node: 8
+  max_try_make_batch: 20
+  val_freq: 20
+  best_metric_key: val/miou_reward
+  val_before_train: false
+  val_only: false
+  val_generations_to_log: 8
+  save_freq: 20
+  save_limit: 2
+  save_model_only: false
+  save_checkpoint_path: ./checkpoints/timeple_tr_spd
+  load_checkpoint_path: null
+  find_last_checkpoint: false

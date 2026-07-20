@@ -1,0 +1,55 @@
+runtime:
+  input_jsonl: data_pipeline/train_building/outputs/step1_normalized.jsonl
+  output_jsonl: data_pipeline/train_building/outputs/step2_predictions.jsonl
+  format: final
+  models: qwen
+  resume: true
+  overwrite_existing: false
+  skip_missing_video: true
+  progress_every: 50
+  flush_every: 5
+  distributed:
+    enabled: true
+    world_size: 32        # 例: 4 机 x 8 卡
+    hostfile: ./hostfile
+    mpi_hostfile: ./hostfile
+    shard_output: true
+    add_global_index_field: true
+    global_index_field: "_dp_global_index"
+
+prompt:
+  enable: false
+  system_prompt: ""
+  guidance_prompt: ""
+  query_template: ""
+
+gemini:
+  enabled: false
+
+qwen_vllm:
+  enabled: true
+  model_path: ./checkpoints/teacher-model
+  tensor_parallel_size: 1
+  dtype: bfloat16
+  mm_encoder_tp_mode: data
+  enable_expert_parallel: false
+  gpu_memory_utilization: 0.7
+  max_model_len: 6144
+  max_num_seqs: 32
+  enforce_eager: false
+  include_frame_timestamps: false
+  # frame_max_token: 196
+  # frame_min_token: 16
+  # frame_token_only: true
+  video:
+    max_frames: 64
+    sample_fps: 2.0
+    total_pixels: 5242880
+    min_pixels: 32768
+  generation:
+    max_new_tokens: 512
+    temperature: 0.0
+    top_p: 1.0
+    top_k: -1
+    repetition_penalty: 1.0
+    use_tqdm: false

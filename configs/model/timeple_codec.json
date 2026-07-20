@@ -1,0 +1,56 @@
+{
+  "token_dim": 4096,
+  "transform": {
+    "tau": 0.0,
+    "eps": 1e-6
+  },
+  "grid": {
+    "num_u_bins": 128,
+    "num_v_bins": 128,
+    "span_sigma_u": 0.015,
+    "span_sigma_v": 0.015
+  },
+  "encoder": {
+    "hidden_dims": [
+      512,
+      2048
+    ],
+    "activation": "gelu",
+    "dropout": 0.0,
+    "use_layer_norm": true
+  },
+  "decoder": {
+    "trunk_hidden_dims": [
+      2048,
+      1024
+    ],
+    "activation": "gelu",
+    "dropout": 0.0,
+    "use_layer_norm": true,
+    "duration_adaptive_residual": {
+      "enabled": true,
+      "hidden_dims": [
+        256
+      ],
+      "scale": 0.02,
+      "activation": "gelu",
+      "dropout": 0.0,
+      "use_layer_norm": true,
+      "weight_mode": "relative_sqrt_inv",
+      "weight_eps": 0.0001,
+      "weight_max": 10.0
+    }
+  },
+  "loss": {
+    "lambda_dfl": 1.0,
+    "lambda_iou": 1.0,
+    "lambda_boundary": 0.5,
+    "boundary_weight_mode": "absolute_bucket",
+    "boundary_weight_normalize": true,
+    "absolute_short_threshold_sec": 10.0,
+    "absolute_medium_threshold_sec": 30.0,
+    "absolute_short_weight": 3.0,
+    "absolute_medium_weight": 1.5,
+    "absolute_long_weight": 1.0
+  }
+}

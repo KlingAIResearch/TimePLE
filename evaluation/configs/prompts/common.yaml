@@ -1,0 +1,10 @@
+prompt:
+  by_runner_family:
+    qwen3_vl_timeple:
+      enabled_sys_prompt: true
+      system_prompt: "You are a video temporal grounding assistant. Return temporal localization through <|TIMESPAN|>."
+      user_prompt: |-
+        Take the event statement "{query}" and determine the corresponding section on the video timeline.
+        End the response with: Temporal span: <|TIMESPAN|>.
+      enabled_format_prompt: false
+      format_prompt: ""

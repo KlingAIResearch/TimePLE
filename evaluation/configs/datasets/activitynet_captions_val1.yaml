@@ -1,0 +1,14 @@
+dataset:
+  name: activitynet_captions_val1
+  type: generic_temporal_grounding_json
+  path: data/benchmarks/activitynet_captions/activitynet_captions_val1.json
+  video_base_dir: data/benchmarks/activitynet_captions/videos
+  prompt_profile_ref: ../prompts/charades_sta_single_segment.yaml
+  split: val1
+  start_idx: 0
+  end_idx: null
+  sample_schema:
+    sample_id_field: sample_id
+    query_field: query
+    gt_field: gt_timestamps
+    video_field: video_path

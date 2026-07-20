@@ -1,0 +1,53 @@
+# Duration-adaptive TimePLE-Codec geometry pretraining config.
+# This file is consumed by: `python -m timeple.geometry_pretrain --config <this_yaml>`
+
+meta:
+  experiment_name: timeple_geometry_pretrain
+  notes:
+    - balanced square coverage
+    - tau=0 base span geometry
+    - duration-adaptive decoder residual
+    - absolute-duration-aware boundary loss
+
+model:
+  codec_config_path: timeple_codec.json
+
+data:
+  defaults:
+    span_u_bins: 128
+    span_v_bins: 128
+    duration_min_sec: 1.0
+    duration_max_sec: 600.0
+    duration_distribution: log_uniform
+
+  train:
+    span_samples_per_cell: 128
+    seed: 42
+
+  eval:
+    span_samples_per_cell: 128
+    seed: 10042
+
+training:
+  # Geometry configs resolve paths relative to configs/model/.
+  output_dir: ../../outputs/geometry_pretrain_v1
+  epochs: 5
+  batch_size: 4096
+  eval_batch_size: 4096
+  num_workers: 64
+  lr: 1.0e-3
+  weight_decay: 1.0e-5
+  grad_clip_norm: 1.0
+  device: auto
+  seed: 42
+
+loss:
+  token_noise_std: 0.02
+  eval_noise_std: 0.02
+  clean_loss_weight: 1.0
+  noisy_loss_weight: 0.01
+  cycle_loss_weight: 0.01
+
+visualization:
+  viz_every_n_epochs: 10
+  disable_plots: false

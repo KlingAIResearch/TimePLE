@@ -1,92 +1,330 @@
-# TimePLE
+<p align="center">
+  <img src="assets/timeple_icon.png" width="108" alt="TimePLE icon">
+</p>
 
+<h1 align="center">TimePLE: Rethinking Temporal Representation for Video Temporal Grounding</h1>
 
+<p align="center">
+  Yuhui Zeng<sup>1,4</sup>, Xinyu Mao<sup>2,4</sup>, Xiaokun Liu<sup>4</sup>, Xin Tao<sup>4</sup>,
+  Pengfei Wan<sup>4</sup>, Jinfa Huang<sup>3</sup>, Jiayi Ji<sup>1</sup>, Xiawu Zheng<sup>1</sup>
+</p>
 
-## Getting started
+<p align="center">
+  <sup>1</sup>Xiamen University &nbsp;&nbsp;
+  <sup>2</sup>The Chinese University of Hong Kong &nbsp;&nbsp;
+  <sup>3</sup>University of Rochester &nbsp;&nbsp;
+  <sup>4</sup>Kling Team, Kuaishou Technology
+</p>
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+<p align="center">
+  <a href="https://arxiv.org/abs/REPLACE_WITH_ARXIV_ID">📄 <b>Paper</b></a> |
+  <a href="https://REPLACE_WITH_PROJECT_PAGE">🌐 <b>Project Page</b></a> |
+  <a href="https://huggingface.co/REPLACE_WITH_ORG/TimePLE-8B">🤗 <b>Model</b></a> |
+  <a href="https://huggingface.co/datasets/REPLACE_WITH_ORG/Charades-TimePLE">🗃️ <b>Data</b></a>
+</p>
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+> [!NOTE]
+> The URLs above are publication placeholders. Replace them with the final public links before release.
 
-## Add your files
+## News
 
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/ee/gitlab-basics/add-file.html#add-a-file-using-the-command-line) or push an existing Git repository with the following command:
+- **2026-07-20:** Released the TimePLE codec, Qwen3-VL integration, SFT, data-curation pipeline, and public training configurations.
+- **Coming soon:** TimePLE checkpoints and Charades-TimePLE annotations. The benchmark inference/evaluation suite is now available under [`evaluation/`](evaluation/README.md).
 
+## Overview
+
+Video temporal grounding (VTG) aims to localize the continuous video interval described by a natural-language query. Existing VLM-based methods commonly represent an interval through two endpoint outputs, either as timestamp tokens or continuous boundary coordinates.
+
+TimePLE reformulates VTG as **interval-native prediction**. It maps every valid temporal interval to a point in a canonical position-duration square and predicts a single joint distribution over this space. A generated `<|TIMESPAN|>` token provides the latent output interface, while input-side `<|TIMESTAMP|>` tokens encode the temporal coverage of sampled visual units using the same interval geometry.
+
+```text
+video + query
+     |
+     |  temporal anchors encoded by <|TIMESTAMP|>
+     v
+   VLM hidden states
+     |
+     |  generated <|TIMESPAN|>
+     v
+joint distribution over the canonical position-duration square
+     |
+     |  expectation decoding + duration-aware residual refinement
+     v
+continuous temporal interval [start, end]
 ```
-cd existing_repo
-git remote add origin https://git.corp.kuaishou.com/VisionTech/interns/zengyuhui/timeple.git
-git branch -M master
-git push -uf origin master
-```
 
-## Integrate with your tools
+The released codec uses a `128 x 128` canonical grid, Gaussian bandwidth `sigma_u = sigma_v = 0.015`, and duration-adaptive residual scale `alpha = 0.02`.
 
-- [ ] [Set up project integrations](https://git.corp.kuaishou.com/VisionTech/interns/zengyuhui/timeple/-/settings/integrations)
+## Release Status
 
-## Collaborate with your team
+| Component | Status | Entry point |
+|---|:---:|---|
+| TimePLE interval codec | ✅ | `src/timeple/models` |
+| Geometry pretraining | ✅ | `src/timeple/geometry_pretrain` |
+| Qwen3-VL / Transformers integration | ✅ | `integrations/transformers` |
+| SFT / ms-swift integration | ✅ | `integrations/ms_swift` |
+| GRPO / EasyR1 integration | ✅ | `integrations/easyr1` |
+| Training-data curation | ✅ | `data_pipeline/train_building` |
+| Benchmark human-review tools | ✅ | `data_pipeline/bench_cleaning` |
+| TimePLE-8B checkpoint | 🚧 | Hugging Face link to be added |
+| Charades-TimePLE annotations | 🚧 | Hugging Face link to be added |
+| Benchmark inference and evaluation | ✅ | `evaluation` |
 
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Set auto-merge](https://docs.gitlab.com/ee/user/project/merge_requests/merge_when_pipeline_succeeds.html)
+## Quick Navigation
 
-## Test and Deploy
-
-Use the built-in continuous integration in GitLab.
-
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/index.html)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing(SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
-
-***
-
-# Editing this README
-
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thank you to [makeareadme.com](https://www.makeareadme.com/) for this template.
-
-## Suggestions for a good README
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
-
-## Name
-Choose a self-explaining name for your project.
-
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
-
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
-
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
+- [Installation](#installation)
+- [Data Preparation](#data-preparation)
+- [Training TimePLE](#training-timeple)
+- [Data Curation](#data-curation)
+- [Charades-TimePLE](#charades-timeple)
+- [Inference and Evaluation](#inference-and-evaluation)
+- [Implementation Notes](#implementation-notes)
 
 ## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
 
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
+Clone the repository and enter the project directory:
 
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
+```bash
+git clone https://github.com/REPLACE_WITH_ORG/TimePLE.git
+cd TimePLE
+```
 
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
+TimePLE uses `uv` to manage the public reference environment. Install the dependencies required by the stage you want to run:
 
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
+```bash
+# Supervised fine-tuning
+uv sync --extra sft
 
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
+# Reinforcement-learning post-training
+uv sync --extra rl
 
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
+# Data curation
+uv sync --extra data-pipeline
+```
 
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
+Apply the TimePLE overlays to the corresponding upstream libraries:
+
+```bash
+uv run python scripts/install_overlay.py transformers
+uv run python scripts/install_overlay.py ms-swift
+uv run python scripts/install_overlay.py easyr1
+```
+
+The SFT and RL extras are intentionally separate because accelerator stacks often require platform-specific dependency pins. `uv.lock` records the reference resolution.
+
+## Data Preparation
+
+Datasets, licensed videos, pretrained weights, and generated checkpoints are not redistributed in this repository. Place local artifacts under the following repository-relative structure:
+
+```text
+TimePLE/
+├── checkpoints/
+│   ├── base-model/           # Qwen3-VL-8B-Instruct
+│   ├── geometry/             # selected geometry artifacts
+│   ├── sft-stage1/           # selected stage-1 checkpoint
+│   └── sft-stage2/           # selected stage-2 checkpoint
+└── data/
+    ├── sft.jsonl
+    └── rl_train.jsonl
+```
+
+All committed YAML files use paths relative to the TimePLE repository root. The launchers export `TIMEPLE_ROOT` automatically, so machine-specific absolute paths do not need to be committed.
+
+The records included in `data/` are 100 text-only schema examples with placeholder video names. They demonstrate the training interface and are not the paper training set.
+
+Convert local temporal annotations into the TimePLE SFT and EasyR1 schemas with:
+
+```bash
+uv run python scripts/data/prepare_sft.py \
+  --input /path/to/temporal_annotations.jsonl \
+  --output data/sft.jsonl \
+  --count 100 \
+  --seed 2
+
+uv run python scripts/data/prepare_rl.py \
+  --input data/sft.jsonl \
+  --output data/rl_train.jsonl
+```
+
+See [`data/README.md`](data/README.md) and [`scripts/data/README.md`](scripts/data/README.md) for the record schemas.
+
+## Training TimePLE
+
+TimePLE training consists of three independently launched runs:
+
+1. interval geometry pretraining;
+2. SFT stage 1 with the interval codec frozen;
+3. SFT stage 2 with the interval codec unfrozen.
+
+The repository does not automatically promote checkpoints between stages. After each run, inspect the validation results and expose the selected artifact at the stable repository-relative path expected by the next config.
+
+### Stage 0: Interval Geometry Pretraining
+
+```bash
+uv run python -m timeple.geometry_pretrain \
+  --config configs/model/geometry_pretrain_v1.yaml
+```
+
+Each run is saved under a timestamped directory in `outputs/geometry_pretrain_v1/`. After selecting a run, provide:
+
+```text
+checkpoints/geometry/best.pt           <- best_timeple_codec_state_dict.pt
+checkpoints/geometry/codec_config.json <- codec_config_resolved.json
+```
+
+You may copy or link the selected files, or update the stage-1 config to another repository-relative location.
+
+### Stage 1: Frozen-Codec SFT
+
+```bash
+bash scripts/sft/train_stage1.sh
+```
+
+Stage 1 loads the selected geometry state, freezes the TimePLE encoder and decoder, and trains the language-side temporal interface. Its validation set is created through the deterministic split configured in `configs/sft/timeple_sft_stage1.yaml`.
+
+After training, expose the selected checkpoint as `checkpoints/sft-stage1/` or update the stage-2 `model` field.
+
+### Stage 2: Joint SFT
+
+```bash
+bash scripts/sft/train_stage2.sh
+```
+
+Stage 2 starts from the selected stage-1 model and unfreezes the TimePLE encoder and decoder. It independently creates a deterministic validation split from `data/sft.jsonl`.
+
+The conventional handoff location for the selected final SFT checkpoint is `checkpoints/sft-stage2/`.
+
+### Optional Post-Training
+
+```bash
+# GRPO used in the paper's post-SFT study
+bash scripts/rl/train_grpo.sh
+
+# Experimental repository extensions
+bash scripts/csdo/train_csdo.sh
+bash scripts/tr_spd/train_tr_spd.sh
+```
+
+CSDO and TR-SPD are experimental extensions and are not required for the paper's main TimePLE-SFT result.
+
+## Data Curation
+
+The training-data pipeline combines heterogeneous teacher VLMs to verify existing temporal annotations and construct additional grounded samples from cross-model event consensus.
+
+The public implementation provides:
+
+- deterministic preprocessing for Charades-STA and ActivityNet-Captions;
+- Gemini and local-vLLM teacher backends;
+- agreement-based filtering of existing samples;
+- temporal and semantic consensus for newly constructed samples;
+- conversion into TimePLE SFT and RL supervision formats.
+
+Start from [`data_pipeline/README.md`](data_pipeline/README.md). Teacher checkpoints, API credentials, raw annotations, and licensed videos are supplied locally through copied configuration templates and are never hard-coded in the repository.
+
+## Charades-TimePLE
+
+Charades-TimePLE is the human-verified corrected benchmark described in the paper. The annotation package will be released separately on Hugging Face:
+
+> [!IMPORTANT]
+> **Dataset:** [Charades-TimePLE — TODO: replace with the final Hugging Face URL](https://huggingface.co/datasets/REPLACE_WITH_ORG/Charades-TimePLE)
+
+The benchmark release will provide corrected annotations and reconstruction metadata. Licensed Charades videos are not redistributed by this repository.
+
+The human-review interface and annotation-application tools are already available under [`data_pipeline/bench_cleaning`](data_pipeline/bench_cleaning).
+
+## Inference and Evaluation
+
+The public evaluation suite supports Charades-STA, ActivityNet-Captions, and QVHighlights with layered dataset/model/prompt profiles, resumable prediction files, distributed sharding, and duration-stratified metrics.
+
+Install the evaluation environment and render a suite without loading the model:
+
+```bash
+uv sync --extra eval
+uv run python evaluation/src/run_eval_suite.py \
+  --suite evaluation/configs/suites/charades_sta.yaml
+```
+
+Run TimePLE on a benchmark with:
+
+```bash
+SUITE=charades_sta bash scripts/eval/run_suite.sh --models timeple_8b
+SUITE=activitynet_captions bash scripts/eval/run_suite.sh
+SUITE=qvhighlights bash scripts/eval/run_suite.sh
+```
+
+See [`evaluation/README.md`](evaluation/README.md) for the expected annotation schema, data layout, output files, and distributed evaluation workflow.
+
+> [!NOTE]
+> The default evaluation profile follows the paper setting of 2 FPS, at most 200 frames, and at most 64 visual tokens per frame. These inference settings are independent of the public training YAML files.
+
+## Implementation Notes
+
+### Canonical Interval Codec
+
+For a normalized interval `[s, e]` with duration `d = e - s`, TimePLE uses:
+
+```text
+u = s / (1 - d)
+v = d
+```
+
+Every point `(u, v)` in the canonical square maps back to a valid interval. The output decoder predicts a joint distribution over the square, computes its expected coordinate, and applies a duration-aware bounded residual before recovering continuous boundaries.
+
+### Temporal-Token Initialization
+
+When `<|TIMESTAMP|>` and `<|TIMESPAN|>` are newly added, their input and output embeddings are initialized using the empirical mean and covariance statistics of the existing vocabulary embeddings. Temporal-token rows already present in a resumed TimePLE checkpoint are preserved.
+
+### Repository Layout
+
+| Path | Description |
+|---|---|
+| `src/timeple/models` | Canonical transform, codec, losses, and interface adapters |
+| `src/timeple/geometry_pretrain` | Synthetic geometry training and diagnostics |
+| `configs` | Model, SFT, RL, and DeepSpeed configurations |
+| `integrations/transformers` | Qwen3-VL TimePLE model and processor overlay |
+| `integrations/ms_swift` | Dataset, model registration, and SFT trainer overlay |
+| `integrations/easyr1` | GRPO, CSDO, and TR-SPD integration |
+| `data_pipeline` | Training-data curation and benchmark correction |
+| `rewards` | Temporal localization and format rewards |
+
+## Validation
+
+Run the lightweight repository checks without launching distributed training:
+
+```bash
+uv sync --extra dev
+uv run pytest
+uv run python -m compileall -q src integrations rewards scripts tests
+bash -n scripts/sft/*.sh scripts/rl/*.sh scripts/csdo/*.sh scripts/tr_spd/*.sh
+```
+
+## Citation
+
+If you find TimePLE useful for your research, please consider citing our work:
+
+```bibtex
+@article{zeng2026timeple,
+  title   = {TimePLE: Rethinking Temporal Representation for Video Temporal Grounding},
+  author  = {Zeng, Yuhui and Mao, Xinyu and Liu, Xiaokun and Tao, Xin and Wan, Pengfei and Huang, Jinfa and Ji, Jiayi and Zheng, Xiawu},
+  journal = {arXiv preprint},
+  year    = {2026}
+}
+```
+
+The citation entry will be updated with the final arXiv identifier.
+
+## Acknowledgement
+
+TimePLE is built upon the following open-source projects:
+
+- [Qwen3-VL](https://github.com/QwenLM/Qwen3-VL)
+- [Hugging Face Transformers](https://github.com/huggingface/transformers)
+- [ModelScope ms-swift](https://github.com/modelscope/ms-swift)
+- [EasyR1](https://github.com/hiyouga/EasyR1)
+- [verl](https://github.com/volcengine/verl)
+
+See [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md) for integration details and upstream licenses.
 
 ## License
-For open source projects, say how it is licensed.
 
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+TimePLE is released under the [Apache License 2.0](LICENSE). This repository does not redistribute third-party datasets, licensed videos, or pretrained model weights.

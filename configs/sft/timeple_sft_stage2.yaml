@@ -1,0 +1,119 @@
+# Stage2 SFT config for Qwen3-VL-8B + TimePLE.
+#
+# Launch: bash scripts/sft/train_stage2.sh
+
+meta:
+  experiment_name: timeple_sft_stage2
+  style: yaml_first
+  intent:
+    - continue duration-adaptive TimePLE SFT from a stage1 checkpoint
+    - unfreeze the codec encoder and decoder
+    - match the TimePLE stage2 SFT schedule and keep duration-adaptive boundary loss active
+
+launch:
+  command: bash scripts/sft/train_stage2.sh
+
+handoff:
+  stage1_checkpoint: ./checkpoints/sft-stage1
+  geometry_pretrain:
+    codec_config_path: ./checkpoints/geometry/codec_config.json
+    pretrained_state_path: ./checkpoints/geometry/best.pt
+
+model:
+  # Replace this with the duration-adaptive stage1 checkpoint before launching stage2.
+  # Keep stage2 independent from the timeple checkpoint path.
+  model: ./checkpoints/sft-stage1
+  attn_impl: flash_attention_2
+  torch_dtype: bfloat16
+
+  use_timeple_codec: true
+  use_timeple_interface_adapter: true
+  timeple_interface_adapter:
+    adapter_type: mlp_projector
+    projector:
+      input:
+        hidden_dim: 4096
+        activation: gelu
+        dropout: 0.0
+        anchor_alpha_init: 0.01
+        anchor_alpha_max: 0.02
+      output:
+        hidden_dim: 4096
+        activation: gelu
+        dropout: 0.0
+
+  timeple_codec_config: ./checkpoints/geometry/codec_config.json
+  timeple_codec_state_path: ./checkpoints/geometry/best.pt
+
+  freeze_vision: true
+  freeze_language: false
+  freeze_lm_head: false
+  freeze_timeple_codec: false
+  freeze_timeple_codec_encoder: false
+  freeze_timeple_codec_decoder: false
+
+data:
+  dataset_path: ./data/sft.jsonl
+  video_base_dir: /
+  video_load_backend: decord
+
+  fps: 6.0
+  fps_min_frames: 4
+  fps_max_frames: 400
+  max_ratio: 200
+  frame_factor: 2
+  spatial_merge_size: 2
+  video_max_token_num: 100
+  video_min_token_num: 32
+
+training:
+  output_dir: ./outputs/timeple_sft_stage2
+  logging_dir: ./outputs/timeple_sft_stage2/logs
+
+  train_type: full
+  resume_only_model: true
+  ignore_data_skip: true
+  remove_unused_columns: false
+
+  per_device_train_batch_size: 2
+  gradient_accumulation_steps: 20
+  dataloader_num_workers: 2
+  dataloader_prefetch_factor: 2
+
+  num_train_epochs: 1
+  learning_rate: 3.0e-6
+  seed: 42
+  data_seed: 42
+  logging_steps: 5
+
+  lm_loss_weight: 0.5
+  timeple_loss_weight: 1.0
+  timeple_decode_loss_weight: 1.0
+  timeple_dfl_loss_weight: 0.05
+  timeple_iou_loss_weight: 1.5
+  timeple_boundary_loss_weight: 0.5
+  timeple_codec_recon_loss_weight: 0.0
+  timeple_embedding_loss_weight: 0.0
+  timeple_embedding_cosine_loss_weight: 0.0
+  timeple_reencoding_loss_weight: 0.0
+  compute_timeple_loss: true
+
+  eval_strategy: steps
+  eval_steps: 20
+  save_steps: 20
+  save_total_limit: 2
+
+  bf16: true
+  # Build a deterministic public validation split from data/sft.jsonl.
+  split_dataset_ratio: 0.005
+  load_best_model_at_end: true
+  metric_for_best_model: timeple_span_iou
+  greater_is_better: true
+  preserve_checkpoint_snapshots: false
+  train_metric_for_best_model: timeple/summary/span_iou
+  train_greater_is_better: true
+
+  gradient_checkpointing: true
+  vit_gradient_checkpointing: true
+
+  deepspeed: ./configs/deepspeed/zero2.json

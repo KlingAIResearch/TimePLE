@@ -1,0 +1,40 @@
+__base__: common.yaml
+
+profile:
+  name: qvhighlights_multi_segment
+  description: Prompt profile for multi-segment temporal grounding benchmarks such as QVHighlights.
+
+prompt:
+  default:
+    enabled_sys_prompt: false
+    user_prompt: |-
+      Give you a textual query: '{query}'. When does the described content occur in the video?
+      There may be multiple relevant segments.
+      Please return the timestamp for each segment:
+    enabled_format_prompt: true
+    format_prompt: Return only the final intervals as [[start_time_1, end_time_1], [start_time_2, end_time_2], ...] in seconds. Do not add analysis.
+
+  by_runner_family:
+    timelens:
+      user_prompt: "Please find all visual events described by the sentence '{query}', determining each segment's starting and ending times. Return only the final intervals in seconds."
+      enabled_format_prompt: false
+
+    videochat_r1:
+      user_prompt: "Given the query '{query}', locate all matching intervals in the video. Provide the final answer within <answer></answer> as [[start_time_1, end_time_1], [start_time_2, end_time_2], ...] in seconds."
+      enabled_format_prompt: false
+
+    qwen2_5_vl:
+      user_prompt: "Given the query '{query}', locate all matching intervals in the video. Return only [[start_time_1, end_time_1], [start_time_2, end_time_2], ...] in seconds."
+      enabled_format_prompt: false
+
+    numpro_qwen2_5_vl:
+      user_prompt: "Given the query '{query}', locate all matching intervals in the numbered video frames. Return only [[start_time_1, end_time_1], [start_time_2, end_time_2], ...] in seconds."
+      enabled_format_prompt: false
+
+    internvl3_5:
+      user_prompt: "Use the sampled video frames to answer the temporal grounding query: '{query}'. Each frame label includes its timestamp in seconds. Return only all matching [start_time, end_time] intervals in seconds."
+      enabled_format_prompt: false
+
+    gemma4:
+      user_prompt: "Locate all video segments described by '{query}'. Return only the final intervals as [[start_time_1, end_time_1], [start_time_2, end_time_2], ...] in seconds."
+      enabled_format_prompt: false

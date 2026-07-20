@@ -1,0 +1,136 @@
+# ==============================================================================
+# Step2 推理配置模板（Gemini + Qwen vLLM）
+# 使用脚本: python data_pipeline/train_building/step2_infer_models.py --config <this_yaml>
+# ==============================================================================
+
+runtime:
+  # Step1 输出文件
+  input_jsonl: data_pipeline/train_building/outputs/step1_normalized.jsonl
+
+  # Step2 输出文件
+  output_jsonl: data_pipeline/train_building/outputs/step2_predictions.jsonl
+
+  # 保存格式：
+  # - final: JSONL（每行一个 JSON，对训练流水线友好）
+  # - debug: Pretty JSON（缩进友好，便于人工排查）
+  format: debug
+
+  # gemini | qwen | both
+  models: both
+
+  # 是否从已有 output_jsonl 断点续跑
+  resume: true
+
+  # true: 强制覆盖已有 gemini/qwen 字段；false: 仅填空字段
+  overwrite_existing: false
+
+  # 跳过不存在的本地视频（推荐开启）
+  skip_missing_video: true
+
+  # 0 表示全量
+  max_samples: 0
+
+  # 每个样本处理后 sleep 秒数（可用于限流）
+  sleep_seconds: 0.0
+
+  # 日志打印间隔
+  progress_every: 20
+
+  # 输出文件 flush 间隔（每处理 N 条写入后 flush 一次）
+  flush_every: 5
+
+  # 多机多卡数据并行（按样本分片）
+  # - 每个进程读取同一个 input_jsonl
+  # - 按 global_index % world_size == rank 分配样本
+  # - 建议每个 rank 输出独立分片文件，再 merge
+  distributed:
+    enabled: false
+    world_size: 1
+    rank: 0
+    local_rank: 0
+
+    # Optional cluster hostfiles; replace these relative placeholders as needed.
+    hostfile: "./hostfile"
+    mpi_hostfile: "./hostfile"
+
+    # 自动读取环境变量（torchrun/slurm/mpi）
+    rank_env_keys: ["RANK", "SLURM_PROCID", "OMPI_COMM_WORLD_RANK"]
+    world_size_env_keys: ["WORLD_SIZE", "SLURM_NTASKS", "OMPI_COMM_WORLD_SIZE"]
+    local_rank_env_keys: ["LOCAL_RANK", "SLURM_LOCALID", "OMPI_COMM_WORLD_LOCAL_RANK"]
+
+    # true: 自动写成 step2_predictions.rank00000.jsonl
+    shard_output: true
+
+    # 分片结果中保留全局顺序字段，供 merge-shards 排序
+    add_global_index_field: true
+    global_index_field: "_dp_global_index"
+
+prompt:
+  # 关闭额外 system/guidance 注入，始终使用 pipeline_core.py 中的标准 training-data prompt。
+  enable: false
+  system_prompt: ""
+  guidance_prompt: ""
+  query_template: ""
+
+gemini:
+  enabled: true
+
+  # Gemini backend configuration
+  api:
+    project_id: ""
+    location: "global"
+    model_name: "gemini-3-pro-preview"
+    credentials_path: ""
+    max_workers: 5  # Gemini 多并发线程数（>1 启用并发）
+
+    # 可选参数（Gemini 3）
+    media_resolution: "media_resolution_high"
+    video_fps: 7.0
+
+    # 重试/超时
+    max_retries: 3
+    retry_delay: 5.0
+    timeout: 300  # seconds
+
+  # 生成参数
+  generation:
+    max_new_tokens: 16636
+    max_output_tokens: 16636
+    temperature: 0.0
+    top_p: 1.0
+    top_k: 1
+
+qwen_vllm:
+  enabled: true
+
+  # 本地模型路径（Qwen3VL-30B）
+  model_path: "./checkpoints/teacher-model"
+
+  # 参考 eval_temporal_grounding_vllm.py 的 vLLM 参数
+  tensor_parallel_size: 1
+  dtype: "bfloat16"
+  mm_encoder_tp_mode: "data"
+  enable_expert_parallel: false
+  gpu_memory_utilization: 0.88
+  max_model_len: 6144
+  max_num_seqs: 32
+  enforce_eager: false
+  include_frame_timestamps: false
+
+  # video_only 输入参数
+  video:
+    max_frames: 200
+    sample_fps: 3.0
+    # total_pixels: 5242880
+    # min_pixels: 16384
+    frame_max_token: 196
+    frame_min_token: 16
+    frame_token_only: true
+  # 生成参数
+  generation:
+    max_new_tokens: 2048
+    temperature: 0.0
+    top_p: 1.0
+    top_k: -1
+    repetition_penalty: 1.0
+    use_tqdm: false
