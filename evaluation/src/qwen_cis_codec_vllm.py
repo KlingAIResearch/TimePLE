@@ -459,9 +459,17 @@ class Qwen3VLCISCodecMultiModalProcessor(Qwen3VLMultiModalProcessor):
         hf_inputs,
         hf_processor_mm_kwargs: Mapping[str, object],
     ) -> Mapping[str, MultiModalFieldConfig]:
-        return _create_qwen2vl_field_factory(
-            self.info.get_hf_config().vision_config.spatial_merge_size
-        )(hf_inputs)
+        fields = dict(
+            _create_qwen2vl_field_factory(
+                self.info.get_hf_config().vision_config.spatial_merge_size
+            )(hf_inputs)
+        )
+        # vLLM drops processor outputs that are not declared here. Keep the
+        # source duration on CPU so the full-forward codec can scale its span.
+        fields["video_durations"] = MultiModalFieldConfig.batched(
+            "video", keep_on_cpu=True
+        )
+        return fields
 
     def _get_prompt_updates(
         self,
@@ -1512,10 +1520,13 @@ def _attach_cis_codec_step_outputs(
             }
             continue
 
-        full_token_ids = list(req_state.prompt_token_ids) + list(cached_output_token_ids)
+        prompt_token_ids = list(req_state.prompt_token_ids)
+        full_token_ids = prompt_token_ids + list(cached_output_token_ids)
+        # Prompt templates may mention <|TIMESPAN|> as an instruction. Only
+        # generated occurrences represent predictions that should be decoded.
         timespan_positions = [
-            pos
-            for pos, token_id in enumerate(full_token_ids)
+            len(prompt_token_ids) + output_pos
+            for output_pos, token_id in enumerate(cached_output_token_ids)
             if token_id == int(timespan_token_id)
         ]
         if not timespan_positions:

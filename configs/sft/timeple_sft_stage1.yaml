@@ -50,8 +50,8 @@ model:
   freeze_timeple_codec_decoder: true
 
 data:
-  dataset_path: ./data/sft.jsonl
-  video_base_dir: /
+  dataset_path: ./data/TimePLE-Dataset/train/timeple_train.jsonl
+  video_base_dir: ./data/TimePLE-Dataset
   video_load_backend: decord
 
   fps: 4.0

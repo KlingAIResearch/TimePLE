@@ -1,13 +1,15 @@
 # Third-party notices
 
-TimePLE is distributed under the Apache License 2.0. Some integration files are modified snapshots of public Apache-2.0 projects and retain their upstream copyright headers.
+TimePLE is distributed under the Apache License 2.0. Its optional integration patches target the following Apache-2.0 projects:
 
-| Component | Upstream project | Use in this archive | License |
-|---|---|---|---|
-| SFT integration | ModelScope ms-swift | Modified argument, model, dataset, template, and trainer overlays | Apache-2.0 |
-| RL integration | EasyR1 / verl | Modified actor, trainer, rollout, dataset, and utility overlays | Apache-2.0 |
-| VLM integration | Hugging Face Transformers and Qwen3-VL integration | Modified Qwen3-VL configuration, processing, and modeling overlays | Apache-2.0 |
+| Integration | Exact upstream | Repository |
+|---|---|---|
+| VLM | Transformers `4.57.6` | https://github.com/huggingface/transformers |
+| SFT | ms-swift `3.12.6` | https://github.com/modelscope/ms-swift |
+| RL | EasyR1/verl `07cae10c28d686a6604546617663d32e4f1089e6` | https://github.com/hiyouga/EasyR1 |
 
-The complete upstream libraries are not bundled. They are declared as environment dependencies in `pyproject.toml`; the TimePLE overlay installer applies only the files needed to expose the method.
+Complete upstream source trees are not distributed in this repository. They are installed from their official package or source repositories when a TimePLE environment is built. The integration manifests record source hashes, patched hashes, versions, and revisions. Applied patches retain upstream copyright notices and add a prominent TimePLE modification notice to every changed upstream file.
 
-No pretrained model weights, videos, or third-party datasets are distributed. Users must obtain those artifacts under their respective licenses and terms.
+No pretrained model weights are distributed. The separately licensed TimePLE
+dataset release, including its WebDataset video shards, is documented under
+`data/TimePLE-Dataset/` and is made available under CC BY-NC-SA 4.0.

@@ -53,8 +53,8 @@ model:
   freeze_timeple_codec_decoder: false
 
 data:
-  dataset_path: ./data/sft.jsonl
-  video_base_dir: /
+  dataset_path: ./data/TimePLE-Dataset/train/timeple_train.jsonl
+  video_base_dir: ./data/TimePLE-Dataset
   video_load_backend: decord
 
   fps: 6.0
@@ -104,7 +104,7 @@ training:
   save_total_limit: 2
 
   bf16: true
-  # Build a deterministic public validation split from data/sft.jsonl.
+  # Build a deterministic validation split from the full local annotation package.
   split_dataset_ratio: 0.005
   load_best_model_at_end: true
   metric_for_best_model: timeple_span_iou

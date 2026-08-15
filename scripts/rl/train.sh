@@ -12,7 +12,7 @@ export PYTHONPATH="${PROJECT_ROOT}/src:${PYTHONPATH:-}"
 export CHECKPOINT_ROOT
 
 [[ -f "${CONFIG_PATH}" ]] || { echo "Missing config: ${CONFIG_PATH}" >&2; exit 2; }
-[[ -x "${PYTHON_BIN}" ]] || { echo "Missing uv environment; run: uv sync --extra rl" >&2; exit 2; }
+[[ -x "${PYTHON_BIN}" ]] || { echo "Missing environment; run: bash scripts/setup_env.sh rl" >&2; exit 2; }
 
 ARGS=(--config "${CONFIG_PATH}")
 if [[ -n "${HOSTFILE}" && -f "${HOSTFILE}" ]]; then

@@ -1,3 +1,8 @@
-# ms_swift
+# ms-swift integration
 
-This directory is part of the TimePLE project. Its path is `integrations/ms_swift`; files here use project-relative paths and are documented by the parent directory.
+This integration targets ms-swift `3.12.6` exactly. It is applied only after the Transformers integration has been built.
+
+```bash
+bash scripts/setup_env.sh sft
+.venv/bin/python scripts/build_integration.py ms-swift --check
+```

@@ -61,10 +61,10 @@ worker:
     csdo_enabled: false
 
     model:
-      model_path: ./checkpoints/sft-stage2
+      model_path: ./checkpoints/TimePLE-8B
       tokenizer_path: null
       enable_gradient_checkpointing: true
-      trust_remote_code: true
+      trust_remote_code: false
       freeze_vision_tower: true
       freeze_timeple_codec_encoder: true
       freeze_timeple_codec_decoder: true

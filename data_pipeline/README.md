@@ -63,7 +63,7 @@ Web 服务默认监听 `http://127.0.0.1:8765/`，静态前端位于 `bench_clea
 ## 依赖边界
 
 - Gemini 和 vLLM 推理适配位于 `inference/`，不依赖原始 Qwen3-VL 工作目录。
-- 基础清洗使用 `uv sync --extra data-pipeline`；Gemini 或 vLLM 教师推理分别使用 `data-gemini`、`data-vllm` extra。
+- 基础清洗使用 `bash scripts/setup_env.sh data-pipeline`；Gemini 或 vLLM 教师推理分别使用 `data-gemini`、`data-vllm` profile。
 - Gemini、Qwen、数据集、GCP credentials 和模型 checkpoint 均通过配置或命令行传入。
 - `ffmpeg`/`ffprobe` 用于视频切片和浏览器兼容转码。
 - 新产生的数据默认写入各子目录的 `outputs/`；这些运行产物不属于源码快照。

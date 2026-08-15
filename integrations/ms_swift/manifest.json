@@ -1,0 +1,39 @@
+{
+  "distribution": "ms-swift",
+  "import_name": "swift",
+  "version": "3.12.6",
+  "patch": "patches/timeple.patch",
+  "created_files": {
+    "swift/llm/dataset/timeple_dataset.py": "358c1ad8840072d6623fe8d2de8140e75a0aa4a5c8302c72f97a0cc7c0ee3ba5"
+  },
+  "modified_files": {
+    "swift/llm/argument/base_args/base_args.py": {
+      "upstream": "22aae6d50b1203c912b090e99ebc1351564371fe17207026cf2c18ef5fb73c62",
+      "patched": "8a440477710e4c9310447958bbeb44d81fc786a630f8ecbd7cc3d7f348b4fdf1"
+    },
+    "swift/llm/argument/train_args.py": {
+      "upstream": "279251ebab81285d41271576af7e55bc84f044ad1edda50fd8304b374c0075f6",
+      "patched": "7cfd1ce89f1c5231ba15d6d42e54f66c74fa6e4fe728bd87d93e45ade715339d"
+    },
+    "swift/llm/model/constant.py": {
+      "upstream": "af8aa8b4bae557a41bda29c484a93637d497806f2b4db32101a5082f2f540fc0",
+      "patched": "ea098f9cf6686848f8b0f9723d85752579b6545026f82b0874f46c47025d3624"
+    },
+    "swift/llm/model/model/qwen.py": {
+      "upstream": "8fd74945eb534856946d39ad9d808c049668bd17750175c698c8559588ca8274",
+      "patched": "499958a6c593f832e786800c3c17dcb48e9fbae883f9bdc37d2549881a440bb7"
+    },
+    "swift/llm/template/template/qwen.py": {
+      "upstream": "d8186c320a04d7d922b596b1b666f31d68f1bdab31715d0614eb96fd58d0ee8a",
+      "patched": "053660dd29a22b0a8784b8621acd1053c994ec4b632b54a7a8319cb252d761e0"
+    },
+    "swift/llm/train/sft.py": {
+      "upstream": "cb760edc370ec967e62adb2e02ba9c62cfb1296f29b081b71e785a92be908e50",
+      "patched": "cb5f9ac38010e1d8e4483a43b80afc33bbaba1476c5db0be42340cc33151cf92"
+    },
+    "swift/trainers/trainers.py": {
+      "upstream": "55cfe24eebb6728aafd186cb8c23d91162bfbc2a647dbe18af1d9e13a5b4403e",
+      "patched": "b429430f30b4836aec396c6b0017250765c0cf506502bf17783768b12ac4968a"
+    }
+  }
+}

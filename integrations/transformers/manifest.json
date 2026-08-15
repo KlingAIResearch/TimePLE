@@ -1,0 +1,21 @@
+{
+  "distribution": "transformers",
+  "import_name": "transformers",
+  "version": "4.57.6",
+  "patch": "patches/timeple.patch",
+  "created_files": {
+    "transformers/models/qwen3_vl/configuration_qwen3_vl_timeple.py": "f0f808101e6f8aa726870aeef4ebcefe3d2dab62b2591914ab42e3dedf01cc4a",
+    "transformers/models/qwen3_vl/modeling_qwen3_vl_timeple.py": "518692a6e7045411e5d857eb7ae79b08d5f6a33498754d261b076726b3fd7810",
+    "transformers/models/qwen3_vl/processing_qwen3_vl_timeple.py": "a4af075e48b00a3bcc6acb6a880c416fc9d9deda7e44651ba6e79cbfe3044e64"
+  },
+  "modified_files": {
+    "transformers/models/qwen3_vl/processing_qwen3_vl.py": {
+      "upstream": "efd8d64aaf608aad1ffb3e6d503d6a99e5227d007df95c1d9fa905d998cda4a9",
+      "patched": "6a794ae5437ad3975a52ccab4749c430bdae2918c9adcf486925da94fc56b047"
+    },
+    "transformers/models/qwen3_vl/video_processing_qwen3_vl.py": {
+      "upstream": "a49a83fc45cd9baa3e391a68af79743c70d47b86d7d6c81a262fda4104f89db7",
+      "patched": "be10d98354f5b61b4c8a2be1f16006f9ca8b59957e51e7fdfb8f4137f395b718"
+    }
+  }
+}

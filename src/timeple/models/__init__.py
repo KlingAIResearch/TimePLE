@@ -19,6 +19,12 @@ from .interface_adapter import (
     TimePLEProjectorOutputAdapter,
 )
 from .transforms import CanonicalSpanIntervalTransform
+from .configuration_timeple import Qwen3VLTimePLEConfig
+from .modeling_timeple import (
+    Qwen3VLForConditionalGenerationWithTimePLECodec,
+    Qwen3VLOutputWithTimePLECodec,
+)
+from .processing_timeple import Qwen3VLProcessorWithTimePLECodec
 
 __all__ = [
     "TimePLEDecoderOutput",
@@ -36,4 +42,8 @@ __all__ = [
     "TimePLECodec",
     "SpanSquareDecoder",
     "SpanSquareEncoder",
+    "Qwen3VLTimePLEConfig",
+    "Qwen3VLForConditionalGenerationWithTimePLECodec",
+    "Qwen3VLOutputWithTimePLECodec",
+    "Qwen3VLProcessorWithTimePLECodec",
 ]

@@ -7,7 +7,7 @@ model:
     family: qwen3_vl_timeple
     script: evaluation/src/run_vllm_benchmark.py
   official:
-    source_url: https://huggingface.co/REPLACE_WITH_ORG/TimePLE-8B
+    source_url: https://huggingface.co/KlingTeam/TimePLE
     entrypoint: vllm::Qwen3VLForConditionalGenerationWithTimePLECodec
   resources:
     gpu_count: 1
@@ -15,8 +15,8 @@ model:
   eval:
     config:
       inference:
-        model_path: ./checkpoints/sft-stage2
-        trust_remote_code: true
+        model_path: ./checkpoints/TimePLE-8B
+        trust_remote_code: false
         allowed_local_media_path: ./data
         engine:
           tensor_parallel_size: 1

@@ -6,7 +6,7 @@
 
 <p align="center">
   Yuhui Zeng<sup>1,4</sup>, Xinyu Mao<sup>2,4</sup>, Xiaokun Liu<sup>4</sup>, Xin Tao<sup>4</sup>,
-  Pengfei Wan<sup>4</sup>, Jinfa Huang<sup>3</sup>, Jiayi Ji<sup>1</sup>, Xiawu Zheng<sup>1</sup>
+  Jinfa Huang<sup>3</sup>, Jiayi Ji<sup>1</sup>, Xiawu Zheng<sup>1</sup>
 </p>
 
 <p align="center">
@@ -17,19 +17,15 @@
 </p>
 
 <p align="center">
-  <a href="https://arxiv.org/abs/REPLACE_WITH_ARXIV_ID">📄 <b>Paper</b></a> |
-  <a href="https://REPLACE_WITH_PROJECT_PAGE">🌐 <b>Project Page</b></a> |
-  <a href="https://huggingface.co/REPLACE_WITH_ORG/TimePLE-8B">🤗 <b>Model</b></a> |
-  <a href="https://huggingface.co/datasets/REPLACE_WITH_ORG/Charades-TimePLE">🗃️ <b>Data</b></a>
+  <a href="https://arxiv.org/abs/2607.23951">📄 <b>Paper</b></a> |
+  <a href="https://huggingface.co/KlingTeam/TimePLE">🤗 <b>Model</b></a> |
+  <a href="https://huggingface.co/datasets/KlingTeam/TimePLE-Dataset">🗃️ <b>Data</b></a>
 </p>
-
-> [!NOTE]
-> The URLs above are publication placeholders. Replace them with the final public links before release.
 
 ## News
 
 - **2026-07-20:** Released the TimePLE codec, Qwen3-VL integration, SFT, data-curation pipeline, and public training configurations.
-- **Coming soon:** TimePLE checkpoints and Charades-TimePLE annotations. The benchmark inference/evaluation suite is now available under [`evaluation/`](evaluation/README.md).
+- **Available:** The TimePLE checkpoint, training annotations, benchmark annotations, and inference/evaluation suite are available now.
 
 ## Overview
 
@@ -66,8 +62,8 @@ The released codec uses a `128 x 128` canonical grid, Gaussian bandwidth `sigma_
 | GRPO / EasyR1 integration | ✅ | `integrations/easyr1` |
 | Training-data curation | ✅ | `data_pipeline/train_building` |
 | Benchmark human-review tools | ✅ | `data_pipeline/bench_cleaning` |
-| TimePLE-8B checkpoint | 🚧 | Hugging Face link to be added |
-| Charades-TimePLE annotations | 🚧 | Hugging Face link to be added |
+| TimePLE-8B checkpoint | ✅ | [KlingTeam/TimePLE](https://huggingface.co/KlingTeam/TimePLE) |
+| Training and benchmark annotations | ✅ | [KlingTeam/TimePLE-Dataset](https://huggingface.co/datasets/KlingTeam/TimePLE-Dataset) |
 | Benchmark inference and evaluation | ✅ | `evaluation` |
 
 ## Quick Navigation
@@ -85,36 +81,48 @@ The released codec uses a `128 x 128` canonical grid, Gaussian bandwidth `sigma_
 Clone the repository and enter the project directory:
 
 ```bash
-git clone https://github.com/REPLACE_WITH_ORG/TimePLE.git
+git clone https://github.com/KlingAIResearch/TimePLE.git
 cd TimePLE
 ```
 
-TimePLE uses `uv` to manage the public reference environment. Install the dependencies required by the stage you want to run:
+TimePLE uses `uv` to reproduce exact upstream environments. Build the environment required by the stage you want to run:
 
 ```bash
 # Supervised fine-tuning
-uv sync --extra sft
+bash scripts/setup_env.sh sft
 
 # Reinforcement-learning post-training
-uv sync --extra rl
+bash scripts/setup_env.sh rl
 
 # Data curation
-uv sync --extra data-pipeline
+bash scripts/setup_env.sh data-pipeline
 ```
 
-Apply the TimePLE overlays to the corresponding upstream libraries:
-
-```bash
-uv run python scripts/install_overlay.py transformers
-uv run python scripts/install_overlay.py ms-swift
-uv run python scripts/install_overlay.py easyr1
-```
+The setup script installs the exact upstream versions recorded in `uv.lock`, validates their versions and source hashes, and then applies the TimePLE integration patches. The repository does not contain complete copies of Transformers, ms-swift, or EasyR1 source files.
 
 The SFT and RL extras are intentionally separate because accelerator stacks often require platform-specific dependency pins. `uv.lock` records the reference resolution.
 
+### Loading the released model
+
+The Hugging Face checkpoint is a weights-and-assets repository. The executable TimePLE implementation is provided by this installable source package rather than duplicated in the model repository. Import `timeple` once to register the custom configuration, model, and processor with Transformers; Hub-hosted Python code and `trust_remote_code=True` are not required.
+
+```python
+import torch
+import timeple
+from transformers import AutoModelForImageTextToText, AutoProcessor
+
+model_id = "KlingTeam/TimePLE"
+processor = AutoProcessor.from_pretrained(model_id)
+model = AutoModelForImageTextToText.from_pretrained(
+    model_id,
+    dtype=torch.bfloat16,
+    device_map="auto",
+).eval()
+```
+
 ## Data Preparation
 
-Datasets, licensed videos, pretrained weights, and generated checkpoints are not redistributed in this repository. Place local artifacts under the following repository-relative structure:
+Training and benchmark annotations are released separately as [KlingTeam/TimePLE-Dataset](https://huggingface.co/datasets/KlingTeam/TimePLE-Dataset). Licensed videos, pretrained weights, and generated checkpoints are not redistributed in this GitHub repository. Place local artifacts under the following repository-relative structure:
 
 ```text
 TimePLE/
@@ -122,15 +130,16 @@ TimePLE/
 │   ├── base-model/           # Qwen3-VL-8B-Instruct
 │   ├── geometry/             # selected geometry artifacts
 │   ├── sft-stage1/           # selected stage-1 checkpoint
-│   └── sft-stage2/           # selected stage-2 checkpoint
+│   └── TimePLE-8B/           # final release-ready SFT model
 └── data/
-    ├── sft.jsonl
-    └── rl_train.jsonl
+    ├── TimePLE-Dataset/      # full local annotation package; ignored by Git
+    ├── sft.jsonl             # committed schema examples
+    └── rl_train.jsonl        # committed schema examples
 ```
 
 All committed YAML files use paths relative to the TimePLE repository root. The launchers export `TIMEPLE_ROOT` automatically, so machine-specific absolute paths do not need to be committed.
 
-The records included in `data/` are 100 text-only schema examples with placeholder video names. They demonstrate the training interface and are not the paper training set.
+The committed `sft.jsonl` and `rl_train.jsonl` records are 100 text-only schema examples with placeholder video names. They demonstrate the training interface and are not the paper training set. The SFT configs read the full local package from `data/TimePLE-Dataset/train/timeple_train.jsonl`.
 
 Convert local temporal annotations into the TimePLE SFT and EasyR1 schemas with:
 
@@ -180,7 +189,7 @@ You may copy or link the selected files, or update the stage-1 config to another
 bash scripts/sft/train_stage1.sh
 ```
 
-Stage 1 loads the selected geometry state, freezes the TimePLE encoder and decoder, and trains the language-side temporal interface. Its validation set is created through the deterministic split configured in `configs/sft/timeple_sft_stage1.yaml`.
+Stage 1 loads the selected geometry state, freezes the TimePLE encoder and decoder, and trains the language-side temporal interface. Its validation set is created from the full local annotation package through the deterministic split configured in `configs/sft/timeple_sft_stage1.yaml`.
 
 After training, expose the selected checkpoint as `checkpoints/sft-stage1/` or update the stage-2 `model` field.
 
@@ -190,9 +199,9 @@ After training, expose the selected checkpoint as `checkpoints/sft-stage1/` or u
 bash scripts/sft/train_stage2.sh
 ```
 
-Stage 2 starts from the selected stage-1 model and unfreezes the TimePLE encoder and decoder. It independently creates a deterministic validation split from `data/sft.jsonl`.
+Stage 2 starts from the selected stage-1 model and unfreezes the TimePLE encoder and decoder. It independently creates a deterministic validation split from `data/TimePLE-Dataset/train/timeple_train.jsonl`.
 
-The conventional handoff location for the selected final SFT checkpoint is `checkpoints/sft-stage2/`.
+The final release-ready SFT model is stored locally at `checkpoints/TimePLE-8B/`.
 
 ### Optional Post-Training
 
@@ -223,12 +232,13 @@ Start from [`data_pipeline/README.md`](data_pipeline/README.md). Teacher checkpo
 
 ## Charades-TimePLE
 
-Charades-TimePLE is the human-verified corrected benchmark described in the paper. The annotation package will be released separately on Hugging Face:
+Charades-TimePLE is the human-verified corrected benchmark described in the paper. Its annotations are distributed together with the TimePLE training set in the unified Hugging Face dataset repository:
 
 > [!IMPORTANT]
-> **Dataset:** [Charades-TimePLE — TODO: replace with the final Hugging Face URL](https://huggingface.co/datasets/REPLACE_WITH_ORG/Charades-TimePLE)
+> **Dataset:** [KlingTeam/TimePLE-Dataset](https://huggingface.co/datasets/KlingTeam/TimePLE-Dataset)
 
-The benchmark release will provide corrected annotations and reconstruction metadata. Licensed Charades videos are not redistributed by this repository.
+The dataset repository provides the training annotations, corrected benchmark
+annotations, WebDataset video shards, and integrity metadata.
 
 The human-review interface and annotation-application tools are already available under [`data_pipeline/bench_cleaning`](data_pipeline/bench_cleaning).
 
@@ -239,7 +249,7 @@ The public evaluation suite supports Charades-STA, ActivityNet-Captions, and QVH
 Install the evaluation environment and render a suite without loading the model:
 
 ```bash
-uv sync --extra eval
+bash scripts/setup_env.sh eval
 uv run python evaluation/src/run_eval_suite.py \
   --suite evaluation/configs/suites/charades_sta.yaml
 ```
@@ -281,8 +291,8 @@ When `<|TIMESTAMP|>` and `<|TIMESPAN|>` are newly added, their input and output 
 | `src/timeple/models` | Canonical transform, codec, losses, and interface adapters |
 | `src/timeple/geometry_pretrain` | Synthetic geometry training and diagnostics |
 | `configs` | Model, SFT, RL, and DeepSpeed configurations |
-| `integrations/transformers` | Qwen3-VL TimePLE model and processor overlay |
-| `integrations/ms_swift` | Dataset, model registration, and SFT trainer overlay |
+| `integrations/transformers` | Versioned Qwen3-VL integration patch and manifest |
+| `integrations/ms_swift` | Versioned SFT integration patch and manifest |
 | `integrations/easyr1` | GRPO, CSDO, and TR-SPD integration |
 | `data_pipeline` | Training-data curation and benchmark correction |
 | `rewards` | Temporal localization and format rewards |
@@ -292,7 +302,7 @@ When `<|TIMESTAMP|>` and `<|TIMESPAN|>` are newly added, their input and output 
 Run the lightweight repository checks without launching distributed training:
 
 ```bash
-uv sync --extra dev
+bash scripts/setup_env.sh dev
 uv run pytest
 uv run python -m compileall -q src integrations rewards scripts tests
 bash -n scripts/sft/*.sh scripts/rl/*.sh scripts/csdo/*.sh scripts/tr_spd/*.sh
@@ -305,7 +315,7 @@ If you find TimePLE useful for your research, please consider citing our work:
 ```bibtex
 @article{zeng2026timeple,
   title   = {TimePLE: Rethinking Temporal Representation for Video Temporal Grounding},
-  author  = {Zeng, Yuhui and Mao, Xinyu and Liu, Xiaokun and Tao, Xin and Wan, Pengfei and Huang, Jinfa and Ji, Jiayi and Zheng, Xiawu},
+  author  = {Zeng, Yuhui and Mao, Xinyu and Liu, Xiaokun and Tao, Xin and Huang, Jinfa and Ji, Jiayi and Zheng, Xiawu},
   journal = {arXiv preprint},
   year    = {2026}
 }

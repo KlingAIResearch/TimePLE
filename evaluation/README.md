@@ -14,8 +14,7 @@ mIoU for Short `(0, 10]s`, Medium `(10, 30]s`, and Long `(30, inf)` moments.
 ## Install
 
 ```bash
-uv sync --extra eval
-uv run python scripts/install_overlay.py transformers
+bash scripts/setup_env.sh eval
 ```
 
 The TimePLE vLLM adapter reads the public `timeple` package directly. No source
@@ -59,7 +58,7 @@ The default profiles expect:
 
 ```text
 checkpoints/base-model/   # Qwen3-VL-8B-Instruct
-checkpoints/sft-stage2/   # exported TimePLE-8B checkpoint
+checkpoints/TimePLE-8B/   # exported TimePLE-8B checkpoint
 ```
 
 The TimePLE checkpoint must contain its Hugging Face `config.json`, processor

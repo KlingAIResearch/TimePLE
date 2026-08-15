@@ -1,0 +1,59 @@
+{
+  "distribution": "verl",
+  "import_name": "verl",
+  "version": "0.3.3.dev0",
+  "commit": "07cae10c28d686a6604546617663d32e4f1089e6",
+  "patch": "patches/timeple.patch",
+  "created_files": {
+    "verl/trainer/timeed_grpo.py": "101a182f5cfc764ccbd9cca58cd87190d2c3e26b4125f9444727a57ad3852f22",
+    "verl/trainer/tr_spd.py": "0cab2349cb53661b64f36959e487ba7d4785a80a424e355efbd739503dcbef02",
+    "verl/utils/vllm_qwen3_vl_timeple.py": "76cf81dea3c1aa96b086c2f6c75b3501a5016935f7874e000bf2390ee6af37b2",
+    "verl/workers/actor/tr_spd.py": "b90f225ad44acd781d34085ca10bdaa083c2a5f71d78eed541764eb1b9d19765"
+  },
+  "modified_files": {
+    "verl/trainer/config.py": {
+      "upstream": "8ecc0fed698059932375ee19f44c47fa163ec5498766a34ce0c9a3abf23d2b8e",
+      "patched": "f94c4cf9f73c61742e4ee6df3954e39c469e834e0c988c630ac4ef88d8f2339c"
+    },
+    "verl/trainer/main.py": {
+      "upstream": "f6bdd143a7da3f91634e3b6816171a5abadc02e7a8079cbfd29f59402a7d3ec4",
+      "patched": "5ea78e752af8c5b5d02cdcb95877a7b075add067ff526020ea7c73e702e7f337"
+    },
+    "verl/trainer/ray_trainer.py": {
+      "upstream": "54b9cb7fccc78513440ed05f9c53fe80c43bf86425ae6067ea4a7d41d25017ca",
+      "patched": "7009bf0ac5c3cdc063d6a0f1340d05833c02c4577c17c3d73e5f42aa0a5b38c0"
+    },
+    "verl/utils/dataset.py": {
+      "upstream": "1c266af7bb86064dc37c414f24ab64bfb0c107e71ca7e1b47a2def4d0d9b0ebc",
+      "patched": "fb70239f0ce8d2727f7ddc87cbaf82615b0a821c096cfbe3e6b120c93614832b"
+    },
+    "verl/utils/flops_counter.py": {
+      "upstream": "0b0121aeacd46cc29d721ea738f5fa5b1dde4866418b4c6de056f7cfce7574a6",
+      "patched": "39fbf928d7b756afebe4faa5bf6ccfb703e7cef5d459fe197fc0c3fb01dce8c3"
+    },
+    "verl/utils/tokenizer.py": {
+      "upstream": "0e20ac39d453e7dc7a4498da91806a7e2629eb59e34c47a26edfdf6ffa6401dc",
+      "patched": "8a64c032d45d60e6346cdb91bf4d9677a0716c3cf3745cecc68f5cfd3a8ca780"
+    },
+    "verl/utils/vllm_utils.py": {
+      "upstream": "fa2bc6eb613477302c0222d75133e3121e5e2514fd007320d001b2bd426143e9",
+      "patched": "31f8633073c648da9cd54b5ed689d61fe7ecbbed7b3963c26bd9b1a9e74e1d4b"
+    },
+    "verl/workers/actor/config.py": {
+      "upstream": "f95864cb05d3219296071ff13423a623c0261270e71b94c755ddd5814dafa926",
+      "patched": "35fa5de88f53bf56e452eec9db318d6591985702c619ec29f7b387ec987547a6"
+    },
+    "verl/workers/actor/dp_actor.py": {
+      "upstream": "2e7ba59831f4a8c0d01e918103f191554cb1bb70df7ee95efddc31c36bd6ded0",
+      "patched": "4222946d5eef9cddf734acb7b7c58216e7e34e85b7117af678fc2959b0a93f97"
+    },
+    "verl/workers/fsdp_workers.py": {
+      "upstream": "4ce08f3214b9eeaf429c789f76ea2560156cbad003ce465e2eaf48233a99bad6",
+      "patched": "518b5414c7b8217297c217821f42b2a9465a992173ffaa3f166dbd7704af0b10"
+    },
+    "verl/workers/rollout/vllm_rollout_spmd.py": {
+      "upstream": "9ab0c46f239091f8bf78bcad8c61ee87ba2600dafee814430dd7de9457f6bc30",
+      "patched": "24bfc2f28b00c6db77a7469b572b1359fe6dfcacb5c70af862813d494f44e682"
+    }
+  }
+}
